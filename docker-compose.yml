@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_DB=pgdb
+      - POSTGRES_USER=pguser
+      - POSTGRES_PASSWORD=pguser
+  app:
+    build: .
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_DB=pgdb
+      - POSTGRES_USER=pguser
+      - POSTGRES_PASSWORD=pguser
+    depends_on:
+      - db
+volumes:
+  db-data: {}
