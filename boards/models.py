@@ -24,8 +24,3 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, related_name='posts', null=True, on_delete=models.SET_NULL)
     updated_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
-
-
-
-
-
