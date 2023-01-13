@@ -18,12 +18,18 @@ from django.urls import path
 from django.conf.urls import include
 
 from django.conf.urls import url
-
+from django.contrib.auth import views as auth_views
 from boards import views
+from accounts import views as acc_views
+
 
 urlpatterns = [
     path('grappelli/', include('grappelli.urls')),
     path('admin/', admin.site.urls),
+
+    url(r'^signup/$', acc_views.signup, name='signup'),
+    url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
+    url(r'^login/$', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
 
     url(r'^$', views.home, name='home'),
     url(r'^board/(?P<pk>\d+)/$', views.board_topics, name='board_topics'),
