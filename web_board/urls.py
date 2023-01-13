@@ -22,7 +22,6 @@ from django.contrib.auth import views as auth_views
 from boards import views
 from accounts import views as acc_views
 
-
 urlpatterns = [
     path('grappelli/', include('grappelli.urls')),
     path('admin/', admin.site.urls),
