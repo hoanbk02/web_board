@@ -7,7 +7,7 @@
         <div class="col-lg-8 col-md-10 col-sm-12">
             <div class="card">
                 <div class="card-body">
-                    <h3>Sign up</h3>
+                    <h3>Log in</h3>
                     <form method="post" novalidate>
                         {% csrf_token %}
                         {% include 'includes/form.html' %}
@@ -20,7 +20,7 @@
             </div>
             <div class="text-center py-2">
                 <small>
-                    <a href="#" class="text-muted">Forgot your password?</a>
+                    <a href="{% url 'password_reset' %}" class="text-muted">Forgot your password?</a>
                 </small>
             </div>
         </div>
