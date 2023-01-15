@@ -1,6 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.db.models import Count
+from django.urls import reverse_lazy
+
+from django.views.generic import CreateView, UpdateView
 
 from .forms import NewTopicForm, PostForm
 from .models import Board, Post, Topic
@@ -65,3 +69,29 @@ def reply_post(request, pk, topic_pk):
     else:
         form = PostForm()
     return render(request, 'reply_topic.html', {'topic': topic, 'form': form})
+
+
+class ReplyPostView(CreateView):
+    model = Post
+    form_class = PostForm
+    success_url = reverse_lazy('topic_post')
+    template_name = 'new_post.html'
+
+
+@method_decorator(login_required, name='dispatch')
+class PostUpdateView(UpdateView):
+    model = Post
+    fields = ('message', )
+    template_name = 'edit_post.html'
+    pk_url_kwarg = 'post_pk'
+    context_object_name = 'post'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(created_by=self.request.user)
+
+    def form_valid(self, form):
+        post = form.save(commit=False)
+        post.updated_by = self.request.user
+        post.save()
+        return redirect('topic_post', pk=post.topic.board.pk, topic_pk=post.topic.pk)
