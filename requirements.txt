@@ -2,3 +2,4 @@ Django==2.2.1
 django-grappelli==2.12.2
 psycopg2-binary==2.8.2
 django-widget-tweaks==1.4.9
+Markdown==3.3.5

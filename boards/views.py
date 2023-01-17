@@ -2,16 +2,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models import Count
+from django.utils import timezone
+from django.urls import reverse
 
 from django.views.generic import View, UpdateView, ListView
 
 from .forms import NewTopicForm, PostForm
 from .models import Board, Post, Topic
 
-
-# def home(request):
-#     boards = Board.objects.all()
-#     return render(request, 'home.html', {'boards': boards})
 
 class BoardListView(ListView):
     model = Board
@@ -23,13 +21,13 @@ class TopicListView(ListView):
     model = Topic
     context_object_name = 'topics'
     template_name = 'topics.html'
-    paginate_by = 15
+    paginate_by = 20
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.board = None
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         kwargs['board'] = self.board
         return super().get_context_data(**kwargs)
 
@@ -70,15 +68,19 @@ class PostListView(ListView):
     model = Post
     context_object_name = 'posts'
     template_name = 'topic_post.html'
-    paginate_by = 2
+    paginate_by = 20
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.topic = None
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        self.topic.views += 1
-        self.topic.save()
+    def get_context_data(self, **kwargs):
+        session_key = f'viewed_topic_{self.topic.pk}'
+        if not self.request.session.get(session_key, False):
+            self.topic.views += 1
+            self.topic.save()
+            self.request.session[session_key] = True
+
         kwargs['topic'] = self.topic
         return super().get_context_data(**kwargs)
 
@@ -109,7 +111,13 @@ class ReplyPostView(View):
             post.topic = self.topic
             post.created_by = request.user
             post.save()
-            return redirect('topic_post', pk=pk, topic_pk=topic_pk)
+
+            self.topic.last_updated = timezone.now()
+            self.topic.save()
+
+            topic_url = reverse('topic_post', kwargs={'pk': pk, 'topic_pk': topic_pk})
+            topic_post_url = f'{topic_url}?page={self.topic.get_page_count()}#{post.pk}'
+            return redirect(topic_post_url)
         return self.render(request)
 
     def get(self, request, pk, topic_pk):
