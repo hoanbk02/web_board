@@ -75,11 +75,11 @@ class PostListView(ListView):
         self.topic = None
 
     def get_context_data(self, **kwargs):
-        session_key = f'viewed_topic_{self.topic.pk}'
-        if not self.request.session.get(session_key, False):
-            self.topic.views += 1
-            self.topic.save()
-            self.request.session[session_key] = True
+        # session_key = f'viewed_topic_{self.topic.pk}'
+        # if not self.request.session.get(session_key, False):
+        #     self.topic.views += 1
+        #     self.topic.save()
+        #     self.request.session[session_key] = True
 
         kwargs['topic'] = self.topic
         return super().get_context_data(**kwargs)
